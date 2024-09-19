@@ -1,1 +1,1 @@
-# GoodBank_REST-API-Testing_Automation_Newman
+# GoodBank REST API Automation Testing with Postman Newman
