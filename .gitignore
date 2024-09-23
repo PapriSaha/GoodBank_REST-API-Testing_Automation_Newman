@@ -1,4 +1,3 @@
-node_modules
-Reports
-package-lock.json
-*.html linguist-documentation
+*.html linguist-vendored
+*.css linguist-vendored
+*.json linguist-vendored
