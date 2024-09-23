@@ -70,3 +70,13 @@ This project showcases Automated API testing with Postman and generates report u
 - https://documenter.getpostman.com/view/25676466/2sAXqtc2Qu
 
 ## Newman Report Summary
+
+![Newman-Report-Summary](https://github.com/PapriSaha/GoodBank_REST-API-Testing_Automation_Newman/blob/master/assets/Newman-Report-Summary.jpg)
+
+![Total Requests](https://github.com/PapriSaha/GoodBank_REST-API-Testing_Automation_Newman/blob/master/assets/Total%20Requests.jpg)
+
+![Total-Requests_2](https://github.com/PapriSaha/GoodBank_REST-API-Testing_Automation_Newman/blob/master/assets/Total-Requests_2.jpg)
+
+![Failed_tests](https://github.com/PapriSaha/GoodBank_REST-API-Testing_Automation_Newman/blob/master/assets/Failed_tests.jpg)
+
+![Skipped_Tests](https://github.com/PapriSaha/GoodBank_REST-API-Testing_Automation_Newman/blob/master/assets/Skipped_Tests.jpg)
