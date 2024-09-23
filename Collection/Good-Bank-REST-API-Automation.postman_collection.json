@@ -1,0 +1,2071 @@
+{
+	"info": {
+		"_postman_id": "d7c29594-058a-4f18-a76e-56e117228351",
+		"name": "Good-Bank-REST-API-Automation",
+		"description": "This collection contains the APIs that power The Good Bank's client website and internal service portals.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "25676466"
+	},
+	"item": [
+		{
+			"name": "Application Status",
+			"item": [
+				{
+					"name": "Check Application Status",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var response= pm.response.code;\r",
+									"\r",
+									"switch(response){\r",
+									"    case 200:\r",
+									"\r",
+									"    pm.test(\"Status code is 200\", function(){\r",
+									"        pm.response.to.have.status(200);\r",
+									"    });\r",
+									"\r",
+									"    var jsonData= pm.response.json();\r",
+									"    pm.test(\"Application Message Validation\", function(){\r",
+									"        pm.expect(jsonData.application).to.equal(\"gullible-bank\");\r",
+									"    });\r",
+									"\r",
+									"    pm.test(\"Application Status Validation\", function(){\r",
+									"        pm.expect(jsonData.status).to.equal(\"running\");\r",
+									"    });\r",
+									"    \r",
+									"    pm.test(\"Application Version Validation\", function(){\r",
+									"        pm.expect(jsonData.version).to.equal(\"1.0.0\");\r",
+									"    });\r",
+									"    break;\r",
+									"\r",
+									"    case 400:\r",
+									"    pm.test(\"Bad Request- 400\");\r",
+									"    break;\r",
+									"\r",
+									"    case 403:\r",
+									"    pm.test(\"Forbidden-403\");\r",
+									"    break;\r",
+									"\r",
+									"    case 404:\r",
+									"    pm.test(\"Not Found-404\");\r",
+									"    break;\r",
+									" \r",
+									"    case 500:\r",
+									"    pm.test(\"Internal Server Error- 500\");\r",
+									"    break;\r",
+									"\r",
+									"    case 503:\r",
+									"    pm.test(\"Service Unavailable-503\")\r",
+									"    break;\r",
+									"    default:\r",
+									"    \r",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}",
+							"host": [
+								"{{baseUrl}}"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"description": "This collection contains API to check Application current status."
+		},
+		{
+			"name": "Bank User",
+			"item": [
+				{
+					"name": "Create User with valid credentials",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"var username =pm.variables.replaceIn(\"{{$randomUserName}}\")\r",
+									"console.log(\"User Name: \" + username);\r",
+									"pm.environment.set(\"username\" , username);\r",
+									"\r",
+									"// Function to generate password with at least one upper, one lower, one number\r",
+									"const Allowed = {\r",
+									"    Uppers: \"QWERTYUIOPASDFGHJKLZXCVBNM\",\r",
+									"    Lowers: \"qwertyuiopasdfghjklzxcvbnm\",\r",
+									"    Numbers: \"1234567890\"\r",
+									"}\r",
+									"\r",
+									"const getRandomCharFromString = (str) => str.charAt(Math.floor(Math.random() * str.length))\r",
+									"const generatePassword = (length = 8) => { // password will be @Param-length, default to 8, and have at least one upper, one lower, one number\r",
+									"    let pwd = \"\";\r",
+									"    pwd += getRandomCharFromString(Allowed.Uppers); //pwd will have at least one upper\r",
+									"    pwd += getRandomCharFromString(Allowed.Lowers); //pwd will have at least one lower\r",
+									"    pwd += getRandomCharFromString(Allowed.Numbers); //pwd will have at least one number\r",
+									"    for (let i = pwd.length; i < length; i++)\r",
+									"        pwd += getRandomCharFromString(Object.values(Allowed).join('')); //fill the rest of the pwd with random characters\r",
+									"    return pwd\r",
+									"}\r",
+									"const password = generatePassword(14); // Change the length as needed\r",
+									"pm.environment.set(\"password\", password);\r",
+									"\r",
+									"console.log(\"Generated Password: \" + password);\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var response= pm.response.code;\r",
+									"\r",
+									"switch(response){\r",
+									"    case 200:\r",
+									"    var jsonData= pm.response.json();\r",
+									"\r",
+									"    pm.test(\"Status code is 201\", function(){\r",
+									"        pm.response.to.have.status(201);\r",
+									"    });\r",
+									"\r",
+									"    pm.test(\"You have successfully created the user\");\r",
+									"\r",
+									"    pm.environment.set(\"user_id\", jsonData.response.user_id);\r",
+									"\r",
+									"    pm.test(\"Username Validation\", function(){\r",
+									"    pm.expect(jsonData.response.username).to.equal(pm.environment.get(\"username\"));\r",
+									"    });\r",
+									"\r",
+									"   pm.test(\"Status Message Validation\", function(){\r",
+									"    pm.expect(jsonData.status).to.equal(\"OK\");\r",
+									"   });\r",
+									"    break;\r",
+									"\r",
+									"    case 400:\r",
+									"    pm.test(\"Bad Request- 400\");\r",
+									"    break;\r",
+									"\r",
+									"    case 403:\r",
+									"    pm.test(\"Forbidden\");\r",
+									"    break;\r",
+									"\r",
+									"    case 404:\r",
+									"    pm.test(\"Not Found-404\");\r",
+									"    break;\r",
+									" \r",
+									"    case 500:\r",
+									"    pm.test(\"Internal Server Error- 500\");\r",
+									"    break;\r",
+									"\r",
+									"    case 503:\r",
+									"    pm.test(\"Service Unavailable-503\")\r",
+									"    break;\r",
+									"    default:\r",
+									"\r",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"username\": \"{{username}}\",\r\n    \"password\": \"{{password}}\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/user",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"user"
+							]
+						},
+						"description": "Register a new user with the Good Bank. The username must not be already used."
+					},
+					"response": []
+				},
+				{
+					"name": "Create User with registered username",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var response= pm.response.code;\r",
+									"\r",
+									"switch(response){\r",
+									"\r",
+									"    case 400:\r",
+									"    pm.test(\"Bad Request- 400\");\r",
+									"    break;\r",
+									"\r",
+									"    case 403:\r",
+									"    var jsonData= pm.response.json();\r",
+									"    pm.test(\"Status Code is 403-Forbidden\");\r",
+									"    pm.test(\"Response Message Validation\", function(){\r",
+									"        pm.expect(jsonData.message).to.equal(\"Username already taken!\");\r",
+									"    });\r",
+									"    pm.test(\"Status Message Validation\", function(){\r",
+									"        pm.expect(jsonData.status).to.equal(\"FORBIDDEN\");\r",
+									"    });\r",
+									"\r",
+									"    break;\r",
+									"\r",
+									"    case 404:\r",
+									"    pm.test(\"Not Found-404\");\r",
+									"    break;\r",
+									" \r",
+									"    case 500:\r",
+									"    pm.test(\"Internal Server Error- 500\");\r",
+									"    break;\r",
+									"\r",
+									"    case 503:\r",
+									"    pm.test(\"Service Unavailable-503\")\r",
+									"    break;\r",
+									"    default:\r",
+									"\r",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"username\": \"Jeffry12\",\r\n    \"password\": \"Pm5IjvEgieeoaT\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/user",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"user"
+							]
+						},
+						"description": "Check the register of a new user using already registered username."
+					},
+					"response": []
+				},
+				{
+					"name": "Create User with invalid password",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"var uname=pm.variables.replaceIn(\"{{$randomUserName}}\");\r",
+									"console.log(\"Username: \" + uname);\r",
+									"pm.environment.set(\"uname\", uname);\r",
+									"\r",
+									"// Function to generate password with at least one upper, one lower, one number\r",
+									"const Allowed = {\r",
+									"    Uppers: \"QWERTYUIOPASDFGHJKLZXCVBNM\",\r",
+									"    Lowers: \"qwertyuiopasdfghjklzxcvbnm\",\r",
+									"    Numbers: \"1234567890\",\r",
+									"    Symbols: \"!@#$%^&*()_+-=[]{}|;:'\\\",.<>?/`~\"\r",
+									"}\r",
+									"\r",
+									"const getRandomCharFromString = (str) => str.charAt(Math.floor(Math.random() * str.length))\r",
+									"const generatePassword = (length = 8) => { // password will be @Param-length, default to 8, and have at least one upper, one lower, one number\r",
+									"    let pwd = \"\";\r",
+									"    pwd += getRandomCharFromString(Allowed.Uppers); //pwd will have at least one upper\r",
+									"    pwd += getRandomCharFromString(Allowed.Lowers); //pwd will have at least one lower\r",
+									"    pwd += getRandomCharFromString(Allowed.Numbers); //pwd will have at least one number\r",
+									"     pwd += getRandomCharFromString(Allowed.Symbols);//at least one symbol\r",
+									"    for (let i = pwd.length; i < length; i++)\r",
+									"        pwd += getRandomCharFromString(Object.values(Allowed).join('')); //fill the rest of the pwd with random characters\r",
+									"    return pwd\r",
+									"}\r",
+									"const invalid_password = generatePassword(14); // Change the length as needed\r",
+									"pm.environment.set(\"invalid_password\", invalid_password);\r",
+									"\r",
+									"console.log(\"Generated Invalid Password: \" + invalid_password);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var response= pm.response.code;\r",
+									"\r",
+									"switch(response){\r",
+									"\r",
+									"    case 400:\r",
+									"    pm.test(\"Bad Request- 400\");\r",
+									"    break;\r",
+									"\r",
+									"    case 403:\r",
+									"    var jsonData= pm.response.json();\r",
+									"    pm.test(\"Status Code is 403-Forbidden\");\r",
+									"\r",
+									"    pm.test(\"Response Message Validation\", function(){\r",
+									"        pm.expect(jsonData.message).to.equal(\"username and password should match the pattern ^[0-9A-Za-z]+$\");\r",
+									"    });\r",
+									"    pm.test(\"Status Message Validation\", function(){\r",
+									"        pm.expect(jsonData.status).to.equal(\"FORBIDDEN\");\r",
+									"    });\r",
+									"\r",
+									"    break;\r",
+									"\r",
+									"    case 404:\r",
+									"    pm.test(\"Not Found-404\");\r",
+									"    break;\r",
+									" \r",
+									"    case 500:\r",
+									"    pm.test(\"Internal Server Error- 500\");\r",
+									"    break;\r",
+									"\r",
+									"    case 503:\r",
+									"    pm.test(\"Service Unavailable-503\")\r",
+									"    break;\r",
+									"    default:\r",
+									"\r",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"username\": \"{{uname}}\",\r\n    \"password\": \"{{invalid_password}}\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/user",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"user"
+							]
+						},
+						"description": "Check the register of a new user with invalid password."
+					},
+					"response": []
+				},
+				{
+					"name": "User Login with invalid credentials",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var response= pm.response.code;\r",
+									"\r",
+									"switch(response){\r",
+									"    case 403:\r",
+									"\r",
+									"    var jsonData= pm.response.json();\r",
+									"\r",
+									"    pm.test(\"Status Code is 403\", function(){\r",
+									"        pm.response.to.have.status(403);\r",
+									"    });\r",
+									"\r",
+									"    pm.test(\"Response Message Validation\", function(){\r",
+									"        pm.expect(jsonData.message).to.equal(\"Authentication Failed!\");\r",
+									"    });\r",
+									"    pm.test(\"Status Message Validation\", function(){\r",
+									"        pm.expect(jsonData.status).to.equal(\"FORBIDDEN\");\r",
+									"    });\r",
+									"\r",
+									"    break;\r",
+									"\r",
+									"    \r",
+									"    case 400:\r",
+									"    pm.test(\"Bad Request- 400\");\r",
+									"    break;\r",
+									"\r",
+									"    case 404:\r",
+									"    pm.test(\"Not Found-404\");\r",
+									"    break;\r",
+									" \r",
+									"    case 500:\r",
+									"    pm.test(\"Internal Server Error- 500\");\r",
+									"    break;\r",
+									"\r",
+									"    case 503:\r",
+									"    pm.test(\"Service Unavailable-503\")\r",
+									"    break;\r",
+									"    default:\r",
+									"\r",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"username\": \"{{username}}\",\r\n    \"password\": \"Pm5IjvEgiee\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/user/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"user",
+								"login"
+							]
+						},
+						"description": "Check the login of the user account using invalid credentials."
+					},
+					"response": []
+				},
+				{
+					"name": "User Login Locked at 4 times invalid credentials",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var response= pm.response.code;\r",
+									"\r",
+									"switch(response){\r",
+									"    case 403:\r",
+									"\r",
+									"    var jsonData= pm.response.json();\r",
+									"\r",
+									"    pm.test(\"Status Code is 403\", function(){\r",
+									"        pm.response.to.have.status(403);\r",
+									"    });\r",
+									"\r",
+									"    pm.test(\"Response Message Validation\", function(){\r",
+									"        pm.expect(jsonData.message).to.equal(\"User locked out! Try again later\");\r",
+									"    });\r",
+									"    pm.test(\"Status Message Validation\", function(){\r",
+									"        pm.expect(jsonData.status).to.equal(\"FORBIDDEN\");\r",
+									"    });\r",
+									"\r",
+									"    break;\r",
+									"\r",
+									"    \r",
+									"    case 400:\r",
+									"    pm.test(\"Bad Request- 400\");\r",
+									"    break;\r",
+									"\r",
+									"    case 404:\r",
+									"    pm.test(\"Not Found-404\");\r",
+									"    break;\r",
+									" \r",
+									"    case 500:\r",
+									"    pm.test(\"Internal Server Error- 500\");\r",
+									"    break;\r",
+									"\r",
+									"    case 503:\r",
+									"    pm.test(\"Service Unavailable-503\")\r",
+									"    break;\r",
+									"    default:\r",
+									"\r",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"username\": \"Jeffry12\",\r\n    \"password\": \"Pm5IjvEgiee\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/user/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"user",
+								"login"
+							]
+						},
+						"description": "Check the login of the user account using invalid credentials. At 4 times of trying, user locked out."
+					},
+					"response": []
+				},
+				{
+					"name": "User Login with valid credentials",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var response= pm.response.code;\r",
+									"\r",
+									"switch(response){\r",
+									"    case 200:\r",
+									"\r",
+									"    var jsonData= pm.response.json();\r",
+									"\r",
+									"    pm.test(\"Login Successful\");\r",
+									"\r",
+									"    pm.test(\"Status Code is 200\", function(){\r",
+									"    pm.response.to.have.status(200);\r",
+									"    });\r",
+									"    \r",
+									"    pm.environment.set(\"session_token\", jsonData.response.session_token);\r",
+									"\r",
+									"    pm.test(\"User ID Validation\", function(){\r",
+									"        pm.expect(jsonData.response.user_id).to.equal(pm.environment.get(\"user_id\"));\r",
+									"    });\r",
+									"    pm.test(\"User Name Validation\", function(){\r",
+									"        pm.expect(jsonData.response.username).to.equal(pm.environment.get(\"username\"));\r",
+									"    });\r",
+									"    pm.test(\"Status Message Validation\", function(){\r",
+									"        pm.expect(jsonData.status).to.equal(\"OK\");\r",
+									"    });\r",
+									"\r",
+									"    break;\r",
+									"\r",
+									"    case 400:\r",
+									"    pm.test(\"Bad Request- 400\");\r",
+									"    break;\r",
+									"\r",
+									"    case 403:\r",
+									"    pm.test(\"Forbidden\");\r",
+									"    break;\r",
+									"\r",
+									"    case 404:\r",
+									"    pm.test(\"Not Found-404\");\r",
+									"    break;\r",
+									" \r",
+									"    case 500:\r",
+									"    pm.test(\"Internal Server Error- 500\");\r",
+									"    break;\r",
+									"\r",
+									"    case 503:\r",
+									"    pm.test(\"Service Unavailable-503\")\r",
+									"    break;\r",
+									"    default:\r",
+									"\r",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"username\":\"{{username}}\",\r\n    \"password\":\"{{password}}\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/user/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"user",
+								"login"
+							]
+						},
+						"description": "Login into the user account with valid credentials."
+					},
+					"response": []
+				},
+				{
+					"name": "Get User Information",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var response= pm.response.code;\r",
+									"\r",
+									"switch(response){\r",
+									"    case 200: \r",
+									"    \r",
+									"    var jsonData=pm.response.json();\r",
+									"\r",
+									"    pm.test(\"Status code is 200\", function(){\r",
+									"        pm.response.to.have.status(200);\r",
+									"    });\r",
+									"    \r",
+									"    pm.test(\"User ID Validation\", function(){\r",
+									"    pm.expect(jsonData.response.user_id).to.equal(pm.environment.get(\"user_id\"));\r",
+									"    });\r",
+									"    pm.test(\"User Name Validation\", function(){\r",
+									"        pm.expect(jsonData.response.username).to.equal(pm.environment.get(\"username\"));\r",
+									"    });\r",
+									"    pm.test(\"Status Message Validation\", function(){\r",
+									"        pm.expect(jsonData.status).to.equal(\"OK\");\r",
+									"    });\r",
+									"    break;\r",
+									"     case 400:\r",
+									"    pm.test(\"Bad Request- 400\");\r",
+									"    break;\r",
+									"\r",
+									"    case 404:\r",
+									"    pm.test(\"Not Found-404\");\r",
+									"    break;\r",
+									" \r",
+									"    case 500:\r",
+									"    pm.test(\"Internal Server Error- 500\");\r",
+									"    break;\r",
+									"\r",
+									"    case 503:\r",
+									"    pm.test(\"Service Unavailable-503\")\r",
+									"    break;\r",
+									"    default:\r",
+									"    \r",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-API-key",
+								"value": "{{session_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/user",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"user"
+							]
+						},
+						"description": "Authenticated users can fetch their user information."
+					},
+					"response": []
+				},
+				{
+					"name": "Get User Information without User Authentication",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var response= pm.response.code;\r",
+									"\r",
+									"switch(response){\r",
+									"    case 403:\r",
+									"\r",
+									"    var jsonData=pm.response.json();\r",
+									"\r",
+									"    pm.test(\"Status Code is 403\", function(){\r",
+									"        pm.response.to.have.status(403);\r",
+									"    });\r",
+									"\r",
+									"    pm.test(\"Response Message Validation\", function(){\r",
+									"        pm.expect(jsonData.message).to.equal(\"Unauthenticated!\");\r",
+									"    });\r",
+									"\r",
+									"    pm.test(\"Status Message Validation\", function(){\r",
+									"    pm.expect(jsonData.status).to.equal(\"FORBIDDEN\");\r",
+									"    });\r",
+									"\r",
+									"    break;\r",
+									"\r",
+									"    case 400:\r",
+									"    pm.test(\"Bad Request- 400\");\r",
+									"    break;\r",
+									"\r",
+									"    case 404:\r",
+									"    pm.test(\"Not Found-404\");\r",
+									"    break;\r",
+									" \r",
+									"    case 500:\r",
+									"    pm.test(\"Internal Server Error- 500\");\r",
+									"    break;\r",
+									"\r",
+									"    case 503:\r",
+									"    pm.test(\"Service Unavailable-503\")\r",
+									"    break;\r",
+									"    default:\r",
+									"\r",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/user",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"user"
+							]
+						},
+						"description": "Check the get user information without user authentication key."
+					},
+					"response": []
+				},
+				{
+					"name": "Update User Information",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"var email_id=pm.variables.replaceIn(\"{{$randomEmail}}\");\r",
+									"console.log(\"Email ID: \"+ email_id);\r",
+									"pm.environment.set(\"email_id\", email_id);\r",
+									"\r",
+									"var employee_id=pm.variables.replaceIn(\"{{$randomInt}}\");\r",
+									"console.log(\"Employee Id: \"+ employee_id);\r",
+									"pm.environment.set(\"employee_id\", employee_id);\r",
+									"\r",
+									"var failed_logins=pm.variables.replaceIn(\"{{$randomInt}}\");\r",
+									"console.log(\"Number of Failed Logins: \"+failed_logins);\r",
+									"pm.environment.set(\"failed_logins\", failed_logins);\r",
+									"\r",
+									"// Function to generate a random 10-digit number\r",
+									"function getRandomPhoneNumber() {\r",
+									"    let phone = '+1'; // US country code\r",
+									"    for (let i = 0; i < 10; i++) {\r",
+									"        phone += Math.floor(Math.random() * 10); // Append random digits\r",
+									"    }\r",
+									"    return phone;\r",
+									"}\r",
+									"\r",
+									"// Set the random phone number as a variable in the environment\r",
+									"let randomPhoneNumber = getRandomPhoneNumber();\r",
+									"pm.environment.set(\"randomPhoneNumber\", randomPhoneNumber);\r",
+									"console.log('Generated Phone Number:', randomPhoneNumber);\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var response=pm.response.code;\r",
+									"\r",
+									"switch(response){\r",
+									"    case 200:\r",
+									"\r",
+									"    var jsonData=pm.response.json();\r",
+									"\r",
+									"    pm.test(\"Status code is 200\", function(){\r",
+									"        pm.response.to.have.status(200);\r",
+									"    });\r",
+									"\r",
+									"    pm.test(\"Status Message Validation\", function(){\r",
+									"        pm.expect(jsonData.status).to.equal(\"OK\");\r",
+									"    });\r",
+									"\r",
+									"    pm.test(\"User Name Validation\", function(){\r",
+									"        pm.expect(jsonData.response.username).to.equal(pm.environment.get(\"username\"));\r",
+									"    });\r",
+									"\r",
+									"    pm.test(\"User ID Validation\", function(){\r",
+									"        pm.expect(jsonData.response.user_id).to.equal(pm.environment.get(\"user_id\"));\r",
+									"    });\r",
+									"    \r",
+									"    break;\r",
+									"\r",
+									"     case 403:\r",
+									"\r",
+									"    var jsonData=pm.response.json();\r",
+									"\r",
+									"    pm.test(\"Status Code is 403\", function(){\r",
+									"        pm.response.to.have.status(403);\r",
+									"    });\r",
+									"\r",
+									"    pm.test(\"Response Message Validation\", function(){\r",
+									"        pm.expect(jsonData.message).to.equal(\"Unauthenticated!\");\r",
+									"    });\r",
+									"\r",
+									"    pm.test(\"Status Message Validation\", function(){\r",
+									"    pm.expect(jsonData.status).to.equal(\"FORBIDDEN\");\r",
+									"    });\r",
+									"    break;\r",
+									"    \r",
+									"    case 400:\r",
+									"    pm.test(\"Bad Request- 400\");\r",
+									"    break;\r",
+									"\r",
+									"    case 404:\r",
+									"    pm.test(\"Not Found-404\");\r",
+									"    break;\r",
+									" \r",
+									"    case 500:\r",
+									"    pm.test(\"Internal Server Error- 500\");\r",
+									"    break;\r",
+									"\r",
+									"    case 503:\r",
+									"    pm.test(\"Service Unavailable-503\")\r",
+									"    break;\r",
+									"    default:\r",
+									"    \r",
+									"\r",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "X-API-key",
+								"value": "{{session_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n        \"email_id\": \"{{email_id}}\",\r\n        \"employee\": {{employee_id}},\r\n        \"failed_logins\": {{failed_logins}},\r\n        \"phone\":\"{{randomPhoneNumber}}\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/user",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"user"
+							]
+						},
+						"description": "Authenticated users can update their user information."
+					},
+					"response": []
+				},
+				{
+					"name": "Verifying Updated User Information",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var response= pm.response.code;\r",
+									"\r",
+									"switch(response){\r",
+									"   case 200:\r",
+									"\r",
+									"   var jsonData=pm.response.json();\r",
+									"\r",
+									"   pm.test(\"Status Code is 200\", function(){\r",
+									"    pm.response.to.have.status(200);\r",
+									"   });\r",
+									"   pm.test(\"Email Address Validation\", function(){\r",
+									"   pm.expect(jsonData.response.email_id).to.equal(pm.environment.get(\"email_id\"));\r",
+									"   });\r",
+									"   pm.test(\"Employee ID Validation\", function(){\r",
+									"   pm.expect(jsonData.response.employee).to.equal(parseInt(pm.environment.get(\"employee_id\")));\r",
+									"   });\r",
+									"   pm.test(\"Failed Logins Validation\", function(){\r",
+									"   pm.expect(jsonData.response.failed_logins).to.equal(parseInt(pm.environment.get(\"failed_logins\")));\r",
+									"   });\r",
+									"   pm.test(\"Phone Number Validation\", function(){\r",
+									"   pm.expect(jsonData.response.phone_number).to.equal(pm.environment.get(\"randomPhoneNumber\"));\r",
+									"   });\r",
+									"   pm.test(\"User Id Validation\", function(){\r",
+									"   pm.expect(jsonData.response.user_id).to.equal(pm.environment.get(\"user_id\"));\r",
+									"   });\r",
+									"   pm.test(\"User Name Validation\", function(){\r",
+									"   pm.expect(jsonData.response.username).to.equal(pm.environment.get(\"username\"));\r",
+									"   });\r",
+									"\r",
+									"   pm.test(\"Status Message Validation\", function(){\r",
+									"   pm.expect(jsonData.status).to.equal(\"OK\");\r",
+									"   });\r",
+									"\r",
+									"   break;\r",
+									"\r",
+									"    case 400:\r",
+									"    pm.test(\"Bad Request- 400\");\r",
+									"    break;\r",
+									"    \r",
+									"    case 403:\r",
+									"    pm.test(\"Forbidden-403\");\r",
+									"    break;\r",
+									"    \r",
+									"    case 404:\r",
+									"    pm.test(\"Not Found-404\");\r",
+									"    break;\r",
+									" \r",
+									"    case 500:\r",
+									"    pm.test(\"Internal Server Error- 500\");\r",
+									"    break;\r",
+									"\r",
+									"    case 503:\r",
+									"    pm.test(\"Service Unavailable-503\")\r",
+									"    break;\r",
+									"    default:\r",
+									"    \r",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"packages": {},
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-API-key",
+								"value": "{{session_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/user",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"user"
+							]
+						},
+						"description": "Check the validation of the updated user information."
+					},
+					"response": []
+				},
+				{
+					"name": "User Change Password",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Function to generate password with at least one upper, one lower, one number\r",
+									"const Allowed = {\r",
+									"    Uppers: \"QWERTYUIOPASDFGHJKLZXCVBNM\",\r",
+									"    Lowers: \"qwertyuiopasdfghjklzxcvbnm\",\r",
+									"    Numbers: \"1234567890\"\r",
+									"}\r",
+									"\r",
+									"const getRandomCharFromString = (str) => str.charAt(Math.floor(Math.random() * str.length))\r",
+									"const generatePassword = (length = 8) => { // password will be @Param-length, default to 8, and have at least one upper, one lower, one number\r",
+									"    let pwd = \"\";\r",
+									"    pwd += getRandomCharFromString(Allowed.Uppers); //pwd will have at least one upper\r",
+									"    pwd += getRandomCharFromString(Allowed.Lowers); //pwd will have at least one lower\r",
+									"    pwd += getRandomCharFromString(Allowed.Numbers); //pwd will have at least one number\r",
+									"    for (let i = pwd.length; i < length; i++)\r",
+									"        pwd += getRandomCharFromString(Object.values(Allowed).join('')); //fill the rest of the pwd with random characters\r",
+									"    return pwd\r",
+									"}\r",
+									"const new_password = generatePassword(14); // Change the length as needed\r",
+									"pm.environment.set(\"new_password\", new_password);\r",
+									"\r",
+									"console.log(\"Generated Password: \" + new_password);\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var response=pm.response.code;\r",
+									"\r",
+									"switch(response){\r",
+									"    case 200:\r",
+									"\r",
+									"    var jsonData=pm.response.json();\r",
+									"\r",
+									"    pm.test(\"Status Code is 200\", function(){\r",
+									"    pm.response.to.have.status(200);\r",
+									"    });\r",
+									"    pm.test(\"Password Change Message Validation\", function(){\r",
+									"    pm.expect(jsonData.message).to.equal(\"Password updated successfully!\");\r",
+									"    });\r",
+									"\r",
+									"    pm.test(\"Status Message Validation\", function(){\r",
+									"        pm.expect(jsonData.status).to.equal(\"OK\");\r",
+									"    });\r",
+									"    break;\r",
+									"\r",
+									"    case 400:\r",
+									"    pm.test(\"Bad Request- 400\");\r",
+									"    break;\r",
+									"    \r",
+									"    case 403:\r",
+									"    pm.test(\"Forbidden-403\");\r",
+									"    break;\r",
+									"    \r",
+									"    case 404:\r",
+									"    pm.test(\"Not Found-404\");\r",
+									"    break;\r",
+									" \r",
+									"    case 500:\r",
+									"    pm.test(\"Internal Server Error- 500\");\r",
+									"    break;\r",
+									"\r",
+									"    case 503:\r",
+									"    pm.test(\"Service Unavailable-503\")\r",
+									"    break;\r",
+									"    default:\r",
+									"    \r",
+									"\r",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "X-API-key",
+								"value": "{{session_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"username\": \"{{username}}\",\r\n    \"old_password\": \"{{password}}\",\r\n    \"new_password\": \"{{new_password}}\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/user/change-password",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"user",
+								"change-password"
+							]
+						},
+						"description": "This API is used to update the user password. The user must be authenticated and must remember the current password to update."
+					},
+					"response": []
+				},
+				{
+					"name": "User Change Password using wrong old password",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var response=pm.response.code;\r",
+									"\r",
+									"switch(response){\r",
+									"    \r",
+									"    case 400:\r",
+									"    pm.test(\"Bad Request- 400\");\r",
+									"    break;\r",
+									"    \r",
+									"    case 403:\r",
+									"    pm.test(\"Status Code is 403- FORBIDDEN\", function(){\r",
+									"        pm.response.to.have.status(403);\r",
+									"    });\r",
+									"    \r",
+									"    var jsonData= pm.response.json();\r",
+									"    pm.test(\"Wrong Old Password Message Validation \", function(){\r",
+									"        pm.expect(jsonData.message).to.equal(\"Wrong old password\");\r",
+									"    });\r",
+									"    pm.test(\"Status Message Validation\", function(){\r",
+									"        pm.expect(jsonData.status).to.equal(\"FORBIDDEN\");\r",
+									"    });\r",
+									"\r",
+									"    break;\r",
+									"    \r",
+									"    case 404:\r",
+									"    pm.test(\"Not Found-404\");\r",
+									"    break;\r",
+									" \r",
+									"    case 500:\r",
+									"    pm.test(\"Internal Server Error- 500\");\r",
+									"    break;\r",
+									"\r",
+									"    case 503:\r",
+									"    pm.test(\"Service Unavailable-503\")\r",
+									"    break;\r",
+									"    default:\r",
+									"    \r",
+									"\r",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "X-API-key",
+								"value": "{{session_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"username\": \"{{username}}\",\r\n    \"old_password\": \"{{password}}\",\r\n    \"new_password\": \"{{new_password}}\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/user/change-password",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"user",
+								"change-password"
+							]
+						},
+						"description": "Check the change password of the authenticated user using wrong old password."
+					},
+					"response": []
+				},
+				{
+					"name": "User Logout",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var response= pm.response.code;\r",
+									"\r",
+									"switch(response){\r",
+									"    case 200:\r",
+									"\r",
+									"    pm.test(\"Status Code is 200\", function(){\r",
+									"        pm.response.to.have.status(200);\r",
+									"    });\r",
+									"\r",
+									"    var jsonData= pm.response.json();\r",
+									"\r",
+									"    pm.test(\"Response Message Validation for successfully logged out\", function(){\r",
+									"    pm.expect(jsonData.response).to.equal(\"Successfully logged out!\");\r",
+									"    });\r",
+									"\r",
+									"    pm.test(\"Status Message Validation\", function(){\r",
+									"        pm.expect(jsonData.status).to.equal(\"OK\");\r",
+									"    });\r",
+									"\r",
+									"    break;\r",
+									"    \r",
+									"    case 400:\r",
+									"    pm.test(\"Bad Request- 400\");\r",
+									"    break;\r",
+									"    \r",
+									"    case 403:\r",
+									"    pm.test(\"FORBIDDEN-403\");\r",
+									"    break;\r",
+									"\r",
+									"    case 404:\r",
+									"    pm.test(\"Not Found-404\");\r",
+									"    break;\r",
+									" \r",
+									"    case 500:\r",
+									"    pm.test(\"Internal Server Error- 500\");\r",
+									"    break;\r",
+									"\r",
+									"    case 503:\r",
+									"    pm.test(\"Service Unavailable-503\")\r",
+									"    break;\r",
+									"    default:\r",
+									"    \r",
+									"\r",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-API-key",
+								"value": "{{session_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/user/logout",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"user",
+								"logout"
+							]
+						},
+						"description": "This API revokes an active user session."
+					},
+					"response": []
+				},
+				{
+					"name": "User Login with Changed New Password",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var response= pm.response.code;\r",
+									"\r",
+									"switch(response){\r",
+									"    case 200:\r",
+									"\r",
+									"    var jsonData= pm.response.json();\r",
+									"\r",
+									"    pm.test(\"Login Successful\");\r",
+									"\r",
+									"    pm.test(\"Status Code is 200\", function(){\r",
+									"    pm.response.to.have.status(200);\r",
+									"    });\r",
+									"    \r",
+									"    pm.environment.set(\"session_token\", jsonData.response.session_token);\r",
+									"\r",
+									"    pm.test(\"User ID Validation\", function(){\r",
+									"        pm.expect(jsonData.response.user_id).to.equal(pm.environment.get(\"user_id\"));\r",
+									"    });\r",
+									"    pm.test(\"User Name Validation\", function(){\r",
+									"        pm.expect(jsonData.response.username).to.equal(pm.environment.get(\"username\"));\r",
+									"    });\r",
+									"    pm.test(\"Status Message Validation\", function(){\r",
+									"        pm.expect(jsonData.status).to.equal(\"OK\");\r",
+									"    });\r",
+									"\r",
+									"    break;\r",
+									"\r",
+									"    case 400:\r",
+									"    pm.test(\"Bad Request- 400\");\r",
+									"    break;\r",
+									"\r",
+									"    case 403:\r",
+									"    pm.test(\"Forbidden\");\r",
+									"    break;\r",
+									"\r",
+									"    case 404:\r",
+									"    pm.test(\"Not Found-404\");\r",
+									"    break;\r",
+									" \r",
+									"    case 500:\r",
+									"    pm.test(\"Internal Server Error- 500\");\r",
+									"    break;\r",
+									"\r",
+									"    case 503:\r",
+									"    pm.test(\"Service Unavailable-503\")\r",
+									"    break;\r",
+									"    default:\r",
+									"\r",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"username\":\"{{username}}\",\r\n    \"password\":\"{{new_password}}\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/user/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"user",
+								"login"
+							]
+						},
+						"description": "This API is used to login into the user account again using updated new password."
+					},
+					"response": []
+				}
+			],
+			"description": "This folder contains APIs to manage users of the Good bank."
+		},
+		{
+			"name": "Bank Account",
+			"item": [
+				{
+					"name": "Get Account Summary",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var response= pm.response.code;\r",
+									"\r",
+									"switch(response){\r",
+									"\r",
+									"    case 200:\r",
+									"    pm.test(\"Status Code is 200\", function(){\r",
+									"        pm.response.to.have.status(200);\r",
+									"    });\r",
+									"    var jsonData= pm.response.json();\r",
+									"\r",
+									"    pm.environment.set(\"balance\",jsonData.response.balance);\r",
+									"    pm.environment.set(\"last_transaction\", jsonData.response.last_transaction);\r",
+									"\r",
+									"    pm.test(\"User ID Validation\", function(){\r",
+									"        pm.expect(jsonData.response.user_id).to.equal(pm.environment.get(\"user_id\"));\r",
+									"    });\r",
+									"\r",
+									"    pm.test(\"Status Message Validation\", function(){\r",
+									"        pm.expect(jsonData.status).to.equal(\"OK\");\r",
+									"    });\r",
+									"    break;\r",
+									"\r",
+									"    case 400:\r",
+									"    pm.test(\"Bad Request- 400\");\r",
+									"    break;\r",
+									"\r",
+									"    case 403:\r",
+									"    pm.test(\"Forbidden\");\r",
+									"    break;\r",
+									"\r",
+									"    case 404:\r",
+									"    pm.test(\"Not Found-404\");\r",
+									"    break;\r",
+									" \r",
+									"    case 500:\r",
+									"    pm.test(\"Internal Server Error- 500\");\r",
+									"    break;\r",
+									"\r",
+									"    case 503:\r",
+									"    pm.test(\"Service Unavailable-503\")\r",
+									"    break;\r",
+									"    default:\r",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-API-key",
+								"value": "{{session_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/account/{{user_id}}/summary",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"account",
+								"{{user_id}}",
+								"summary"
+							]
+						},
+						"description": "Get Account Summary for a single user."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Account Transactions",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var response= pm.response.code;\r",
+									"\r",
+									"switch(response){\r",
+									"    case 200:\r",
+									"\r",
+									"    pm.test(\"Status Code is 200\", function(){\r",
+									"        pm.response.to.have.status(200);\r",
+									"    });\r",
+									"\r",
+									"    var jsonData= pm.response.json();\r",
+									"\r",
+									"    pm.test(\"Status Message Validation\", function(){\r",
+									"        pm.expect(jsonData.status).to.equal(\"OK\");\r",
+									"    });\r",
+									"\r",
+									"    pm.test(\"Response Validation\", function(){\r",
+									"     pm.expect(jsonData.response).to.be.an(\"array\");\r",
+									"    });\r",
+									"   break;\r",
+									"    \r",
+									"    case 400:\r",
+									"    pm.test(\"Bad Request- 400\");\r",
+									"    break;\r",
+									"\r",
+									"    case 403:\r",
+									"    pm.test(\"Forbidden-403\");\r",
+									"    break;\r",
+									"\r",
+									"    case 404:\r",
+									"    pm.test(\"Not Found-404\");\r",
+									"    break;\r",
+									" \r",
+									"    case 500:\r",
+									"    pm.test(\"Internal Server Error- 500\");\r",
+									"    break;\r",
+									"\r",
+									"    case 503:\r",
+									"    pm.test(\"Service Unavailable-503\")\r",
+									"    break;\r",
+									"    default:\r",
+									"\r",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-API-key",
+								"value": "{{session_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/account/transactions?limit=10&filter=",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"account",
+								"transactions"
+							],
+							"query": [
+								{
+									"key": "limit",
+									"value": "10",
+									"description": "number of transactions to display"
+								},
+								{
+									"key": "filter",
+									"value": "",
+									"description": "Search string to filter on transaction party"
+								}
+							]
+						},
+						"description": "Get account transactions for a single account."
+					},
+					"response": []
+				}
+			],
+			"description": "This folder contains the APIs that deals with user account and transactions."
+		},
+		{
+			"name": "Bank Admin",
+			"item": [
+				{
+					"name": "Our Customers",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var response= pm.response.code;\r",
+									"\r",
+									"switch(response){\r",
+									"    case 200:\r",
+									"\r",
+									"    pm.test(\"Status Code is 200\", function(){\r",
+									"        pm.response.to.have.status(200);\r",
+									"    });\r",
+									"\r",
+									"    var jsonData= pm.response.json();\r",
+									"\r",
+									"    pm.test(\"Number of Customers\", function () {\r",
+									"    console.log(\"Length: \" + jsonData.length);\r",
+									"});\r",
+									"\r",
+									"    break;\r",
+									"\r",
+									"    case 400:\r",
+									"    pm.test(\"Bad Request- 400\");\r",
+									"    break;\r",
+									"\r",
+									"    case 403:\r",
+									"    pm.test(\"Forbidden-403\");\r",
+									"    break;\r",
+									"\r",
+									"    case 404:\r",
+									"    pm.test(\"Not Found-404\");\r",
+									"    break;\r",
+									" \r",
+									"    case 500:\r",
+									"    pm.test(\"Internal Server Error- 500\");\r",
+									"    break;\r",
+									"\r",
+									"    case 503:\r",
+									"    pm.test(\"Service Unavailable-503\")\r",
+									"    break;\r",
+									"    default:\r",
+									"\r",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/people/customers",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"people",
+								"customers"
+							]
+						},
+						"description": "This API is used to fetch all customers details."
+					},
+					"response": []
+				},
+				{
+					"name": "Credit Amount using User Authentication",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var response= pm.response.code;\r",
+									"\r",
+									"switch(response){\r",
+									"    case 403:\r",
+									"\r",
+									"    pm.test(\"Status Code is 403- FORBIDDEN\", function(){\r",
+									"        pm.response.to.have.status(403);\r",
+									"    });\r",
+									"\r",
+									"    var jsonData= pm.response.json();\r",
+									"\r",
+									"    pm.test(\"Message Validation\", function(){\r",
+									"        pm.expect(jsonData.message).to.equal(\"You are not an admin!\");\r",
+									"    });\r",
+									"\r",
+									"    pm.test(\"Status Message Validation\", function(){\r",
+									"        pm.expect(jsonData.status).to.equal(\"FORBIDDEN\");\r",
+									"    });\r",
+									"\r",
+									"    break;\r",
+									"\r",
+									"    case 400:\r",
+									"    pm.test(\"Bad Request- 400\");\r",
+									"    break;\r",
+									"\r",
+									"    case 404:\r",
+									"    pm.test(\"Not Found-404\");\r",
+									"    break;\r",
+									" \r",
+									"    case 500:\r",
+									"    pm.test(\"Internal Server Error- 500\");\r",
+									"    break;\r",
+									"\r",
+									"    case 503:\r",
+									"    pm.test(\"Service Unavailable-503\")\r",
+									"    break;\r",
+									"    default:\r",
+									"\r",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "X-API-key",
+								"value": "{{session_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"user_id\": \"{{user_id}}\",\r\n    \"transaction_party\": \"nowhere\",\r\n    \"transaction_amount\": 1000\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/admin/credit",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"admin",
+								"credit"
+							]
+						},
+						"description": "To be used by the bank tellers to cash checks, receive deposits, savings account transactions among other things. Check the credit amount using user authentication key."
+					},
+					"response": []
+				},
+				{
+					"name": "Debit Amount using User Authentication",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var response= pm.response.code;\r",
+									"\r",
+									"switch(response){\r",
+									"    case 403:\r",
+									"\r",
+									"    pm.test(\"Status Code is 403- FORBIDDEN\", function(){\r",
+									"        pm.response.to.have.status(403);\r",
+									"    });\r",
+									"\r",
+									"    var jsonData= pm.response.json();\r",
+									"\r",
+									"    pm.test(\"Message Validation\", function(){\r",
+									"        pm.expect(jsonData.message).to.equal(\"You are not an admin!\");\r",
+									"    });\r",
+									"\r",
+									"    pm.test(\"Status Message Validation\", function(){\r",
+									"        pm.expect(jsonData.status).to.equal(\"FORBIDDEN\");\r",
+									"    });\r",
+									"\r",
+									"    break;\r",
+									"\r",
+									"    case 400:\r",
+									"    pm.test(\"Bad Request- 400\");\r",
+									"    break;\r",
+									"\r",
+									"    case 404:\r",
+									"    pm.test(\"Not Found-404\");\r",
+									"    break;\r",
+									" \r",
+									"    case 500:\r",
+									"    pm.test(\"Internal Server Error- 500\");\r",
+									"    break;\r",
+									"\r",
+									"    case 503:\r",
+									"    pm.test(\"Service Unavailable-503\")\r",
+									"    break;\r",
+									"    default:\r",
+									"\r",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "X-API-key",
+								"value": "{{session_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"user_id\": \"{{user_id}}\",\r\n    \"transaction_party\": \"somewhere\",\r\n    \"transaction_amount\": 1000\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/admin/debit",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"admin",
+								"debit"
+							]
+						},
+						"description": "To be used by the bank tellers to cash checks, receive deposits, savings account transactions among other things. Check the debit amount using user authentication key."
+					},
+					"response": []
+				},
+				{
+					"name": "Credit Amount using wrong Admin Authentication",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var response= pm.response.code;\r",
+									"\r",
+									"switch(response){\r",
+									"    case 403:\r",
+									"\r",
+									"    pm.test(\"Status Code is 403- FORBIDDEN\", function(){\r",
+									"        pm.response.to.have.status(403);\r",
+									"    });\r",
+									"\r",
+									"    var jsonData= pm.response.json();\r",
+									"\r",
+									"    pm.test(\"Message Validation\", function(){\r",
+									"        pm.expect(jsonData.message).to.equal(\"Unauthenticated!\");\r",
+									"    });\r",
+									"\r",
+									"    pm.test(\"Status Message Validation\", function(){\r",
+									"        pm.expect(jsonData.status).to.equal(\"FORBIDDEN\");\r",
+									"    });\r",
+									"\r",
+									"    break;\r",
+									"\r",
+									"    case 400:\r",
+									"    pm.test(\"Bad Request- 400\");\r",
+									"    break;\r",
+									"\r",
+									"    case 404:\r",
+									"    pm.test(\"Not Found-404\");\r",
+									"    break;\r",
+									" \r",
+									"    case 500:\r",
+									"    pm.test(\"Internal Server Error- 500\");\r",
+									"    break;\r",
+									"\r",
+									"    case 503:\r",
+									"    pm.test(\"Service Unavailable-503\")\r",
+									"    break;\r",
+									"    default:\r",
+									"\r",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "X-API-key",
+								"value": "<API key>",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"user_id\": \"{{user_id}}\",\r\n    \"transaction_party\": \"nowhere\",\r\n    \"transaction_amount\": 1000\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/admin/credit",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"admin",
+								"credit"
+							]
+						},
+						"description": "To be used by the bank tellers to cash checks, receive deposits, savings account transactions among other things. Check the credit amount using wrong admin authentication key."
+					},
+					"response": []
+				},
+				{
+					"name": "Debit Amount using wrong Admin Authentication",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var response= pm.response.code;\r",
+									"\r",
+									"switch(response){\r",
+									"    case 403:\r",
+									"\r",
+									"    pm.test(\"Status Code is 403- FORBIDDEN\", function(){\r",
+									"        pm.response.to.have.status(403);\r",
+									"    });\r",
+									"\r",
+									"    var jsonData= pm.response.json();\r",
+									"\r",
+									"    pm.test(\"Message Validation\", function(){\r",
+									"        pm.expect(jsonData.message).to.equal(\"Unauthenticated!\");\r",
+									"    });\r",
+									"\r",
+									"    pm.test(\"Status Message Validation\", function(){\r",
+									"        pm.expect(jsonData.status).to.equal(\"FORBIDDEN\");\r",
+									"    });\r",
+									"\r",
+									"    break;\r",
+									"\r",
+									"    case 400:\r",
+									"    pm.test(\"Bad Request- 400\");\r",
+									"    break;\r",
+									"\r",
+									"    case 404:\r",
+									"    pm.test(\"Not Found-404\");\r",
+									"    break;\r",
+									" \r",
+									"    case 500:\r",
+									"    pm.test(\"Internal Server Error- 500\");\r",
+									"    break;\r",
+									"\r",
+									"    case 503:\r",
+									"    pm.test(\"Service Unavailable-503\")\r",
+									"    break;\r",
+									"    default:\r",
+									"\r",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "X-API-key",
+								"value": "<API key>",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"user_id\": \"{{user_id}}\",\r\n    \"transaction_party\": \"nowhere\",\r\n    \"transaction_amount\": 1000\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/admin/debit",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"admin",
+								"debit"
+							]
+						},
+						"description": "To be used by the bank tellers to cash checks, receive deposits, savings account transactions among other things. Check the debit amount using wrong admin authentication key."
+					},
+					"response": []
+				}
+			],
+			"description": "This folder contains APIs used by bank administration. To provide support to customer in case of an issue.",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		}
+	]
+}
