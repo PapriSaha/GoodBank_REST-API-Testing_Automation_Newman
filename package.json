@@ -1,0 +1,13 @@
+{
+  "name": "Good-Bank-api-testing-automation",
+  "version": "1.0.0",
+  "description": "Automated API tests using Postman and Newman",
+  "main": "index.js",
+  "scripts": {
+    "test": "newman run Collection/Good-Bank-REST-API-Automation.postman_collection.json -e Environment/Good-Bank-REST-API-Automation.postman_environment.json -r htmlextra,cli"
+  },
+  "dependencies": {
+    "newman": "^6.2.1",
+    "newman-reporter-htmlextra": "^1.23.1"
+  }
+}
